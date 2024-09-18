@@ -113,6 +113,10 @@ class TinyBERTLV {
       throw TLVError.unexpectedLength(length: val.count)
     }
   }
+    
+  func peekUnread() -> [UInt8] {
+    return Array(self.buf[self.pos..<self.buf.count])
+  }
 
   func readLength() -> Int {
     var len = Int(buf[pos])
