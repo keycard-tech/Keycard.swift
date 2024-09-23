@@ -25,7 +25,8 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "Keycard",
-            dependencies: ["secp256k1", "CryptoSwift", "ZipArchive", "BigInt"]),
+            dependencies: ["secp256k1", "CryptoSwift", "ZipArchive", "BigInt"],
+            swiftSettings: [.define("USE_SPM")]),
         .testTarget(
             name: "KeycardTests",
             dependencies: ["Keycard"]),

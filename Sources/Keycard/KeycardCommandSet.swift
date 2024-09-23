@@ -61,6 +61,11 @@ public class KeycardCommandSet {
     public func unpairOthers() throws {
         try secureChannel.unpairOthers(channel: cardChannel)
     }
+    
+    public func identifyCard(challenge: [UInt8]) throws -> APDUResponse {
+        let cmd = APDUCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.identifyCard.rawValue, p1: 0x00, p2: 0x00, data: challenge)
+        return try cardChannel.send(cmd)
+    }
 
     public func openSecureChannel(index: UInt8, data: [UInt8]) throws -> APDUResponse {
         try secureChannel.openSecureChannel(channel: cardChannel, index: index, data: data)
@@ -302,5 +307,5 @@ public class KeycardCommandSet {
     public func factoryReset() throws -> APDUResponse {
         let cmd = APDUCommand(cla: CLA.proprietary.rawValue, ins: KeycardINS.factoryReset.rawValue, p1: FactoryResetP1.magic.rawValue, p2: FactoryResetP2.magic.rawValue, data: [])
         return try cardChannel.send(cmd)
-    }    
+    }
 }

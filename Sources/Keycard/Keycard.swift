@@ -29,6 +29,7 @@ public enum KeycardINS: UInt8 {
     case initialize = 0xfe
     case factoryReset = 0xfd
     case getStatus = 0xf2
+    case identifyCard = 0x14
     case verifyPIN = 0x20
     case changePIN = 0x21
     case unblockPIN = 0x22

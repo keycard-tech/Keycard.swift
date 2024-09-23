@@ -195,16 +195,16 @@ class Crypto {
     func secp256k1PublicFromPrivate(_ privKey: [UInt8]) -> [UInt8] {
         var pubKey = secp256k1_pubkey()
         _ = secp256k1_ec_pubkey_create(secp256k1Ctx, &pubKey, privKey)
-        return _secp256k1PubToBytes(&pubKey)
+        return _secp256k1PubToBytes(&pubKey, false)
     }
 
-    func secp256k1RecoverPublic(r: [UInt8], s: [UInt8], recId: UInt8, hash: [UInt8]) -> [UInt8] {
+    func secp256k1RecoverPublic(r: [UInt8], s: [UInt8], recId: UInt8, hash: [UInt8], compressed: Bool) -> [UInt8] {
         var sig = secp256k1_ecdsa_recoverable_signature()
         _ = secp256k1_ecdsa_recoverable_signature_parse_compact(secp256k1Ctx, &sig, r + s, Int32(recId))
 
         var pubKey = secp256k1_pubkey()
         _ = secp256k1_ecdsa_recover(secp256k1Ctx, &pubKey, &sig, hash)
-        return _secp256k1PubToBytes(&pubKey)
+        return _secp256k1PubToBytes(&pubKey, compressed)
     }
 
     func secp256k1Sign(hash: [UInt8], privKey: [UInt8]) -> [UInt8] {
@@ -217,11 +217,33 @@ class Crypto {
         secp256k1_ecdsa_signature_serialize_der(secp256k1Ctx, &derSig, &derOutLen, &sig)
         return Array(derSig[0..<derOutLen])
     }
+    
+    func secp256k1Verify(signature: [UInt8], hash: [UInt8], pubKey: [UInt8]) -> Bool {
+        var sig = secp256k1_ecdsa_signature()
+        _ = secp256k1_ecdsa_signature_parse_der(secp256k1Ctx, &sig, signature, signature.count)
+        var signorm = secp256k1_ecdsa_signature()
+        _ = secp256k1_ecdsa_signature_normalize(secp256k1Ctx, &signorm, &sig)
+        
+        var pkey = secp256k1_pubkey();
+        _ = secp256k1_ec_pubkey_parse(secp256k1Ctx, &pkey, pubKey, pubKey.count)
+        
+        return secp256k1_ecdsa_verify(secp256k1Ctx, &signorm, hash, &pkey) != 0
+    }
 
-    private func _secp256k1PubToBytes(_ pubKey: inout secp256k1_pubkey) -> [UInt8] {
-        var pubKeyBytes = [UInt8](repeating: 0, count: 65)
-        var outputLen = 65
-        _ = secp256k1_ec_pubkey_serialize(secp256k1Ctx, &pubKeyBytes, &outputLen, &pubKey, UInt32(SECP256K1_EC_UNCOMPRESSED))
+    private func _secp256k1PubToBytes(_ pubKey: inout secp256k1_pubkey, _ compressed: Bool) -> [UInt8] {
+        var outputLen: Int
+        var compressedFlag: UInt32
+        
+        if (compressed) {
+            outputLen = 33
+            compressedFlag = UInt32(SECP256K1_EC_COMPRESSED)
+        } else {
+            outputLen = 65
+            compressedFlag = UInt32(SECP256K1_EC_UNCOMPRESSED)
+        }
+        
+        var pubKeyBytes = [UInt8](repeating: 0, count: outputLen)
+        _ = secp256k1_ec_pubkey_serialize(secp256k1Ctx, &pubKeyBytes, &outputLen, &pubKey, compressedFlag)
 
         return pubKeyBytes
     }
