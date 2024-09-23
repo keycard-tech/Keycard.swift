@@ -221,11 +221,13 @@ class Crypto {
     func secp256k1Verify(signature: [UInt8], hash: [UInt8], pubKey: [UInt8]) -> Bool {
         var sig = secp256k1_ecdsa_signature()
         _ = secp256k1_ecdsa_signature_parse_der(secp256k1Ctx, &sig, signature, signature.count)
+        var signorm = secp256k1_ecdsa_signature()
+        _ = secp256k1_ecdsa_signature_normalize(secp256k1Ctx, &signorm, &sig)
         
         var pkey = secp256k1_pubkey();
         _ = secp256k1_ec_pubkey_parse(secp256k1Ctx, &pkey, pubKey, pubKey.count)
         
-        return secp256k1_ecdsa_verify(secp256k1Ctx, &sig, hash, &pkey) != 0
+        return secp256k1_ecdsa_verify(secp256k1Ctx, &signorm, hash, &pkey) != 0
     }
 
     private func _secp256k1PubToBytes(_ pubKey: inout secp256k1_pubkey, _ compressed: Bool) -> [UInt8] {
