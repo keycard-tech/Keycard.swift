@@ -46,7 +46,7 @@ public struct Metadata {
     self.wallets = wallets;
   }
 
-  init(_ cardName: String) {
+  public init(_ cardName: String) {
     self.init(cardName, Set<UInt32>());
   }
 
