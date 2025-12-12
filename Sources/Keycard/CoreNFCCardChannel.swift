@@ -46,7 +46,14 @@ public class CoreNFCCardChannel: CardChannel {
             os_log("CardChannel: error: %@", error.localizedDescription)
             throw error
         }
-        return APDUResponse(sw1: result.sw1, sw2: result.sw2, data: result.responseData.bytes)
+
+        var array = [UInt8](repeating: 0, count: result.responseData.count)
+        
+        for i in 0..<array.count {
+            array[i] = result.responseData[i]
+        }
+
+        return APDUResponse(sw1: result.sw1, sw2: result.sw2, data: array)
     }
 
 }
