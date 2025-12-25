@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
 	spec.name = 'Keycard'
-	spec.version = '3.1.0'
+	spec.version = '3.1.2'
 	spec.authors = {'Bitgamma' => 'opensource@bitgamma.com'}
 	spec.homepage = 'https://github.com/status-im/Keycard.swift'
 	spec.license = { :type => 'Apache' }
